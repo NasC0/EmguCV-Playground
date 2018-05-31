@@ -18,7 +18,7 @@ namespace EmguCV.SquareDetection
 
         public static void Main()
         {
-            using (Mat sourceImage = CvInvoke.Imread("../../../characters/characters-and-clues.jpg"))
+            using (Mat sourceImage = CvInvoke.Imread("../../../characters/WORDBRAIN-TURTLE-LEVEL-2.jpg"))
             {
                 Mat scaledImage = new Mat();
                 CvInvoke.Resize(sourceImage, scaledImage, Size.Empty, 1.5, 1.5);
@@ -28,7 +28,7 @@ namespace EmguCV.SquareDetection
 
                 foreach (Rectangle rectangle in detectedRectangles)
                 {
-                    destinationImage.Draw(rectangle, new Bgr(Color.DarkOrange), 2);
+                    destinationImage.Draw(rectangle, new Bgr(Color.DarkOrange), 1);
                 }
 
                 ImageViewer.Show(destinationImage);
@@ -102,8 +102,8 @@ namespace EmguCV.SquareDetection
                                 {
                                     RotatedRect currentRectangle = CvInvoke.MinAreaRect(approxContour);
                                     Rectangle minRectangle = currentRectangle.MinAreaRect();
-                                    int ninetyPercentWidth = minRectangle.Width - (int)(minRectangle.Width * 0.1);
-                                    int ninetyPercentHeight = minRectangle.Height - (int)(minRectangle.Height * 0.1);
+                                    int ninetyPercentWidth = minRectangle.Width - (int)(minRectangle.Width * 0.05);
+                                    int ninetyPercentHeight = minRectangle.Height - (int)(minRectangle.Height * 0.05);
                                     minRectangle.Size = new Size(ninetyPercentWidth, ninetyPercentHeight);
                                     minRectangle.Offset(5, 5);
                                     boxList.Add(minRectangle);

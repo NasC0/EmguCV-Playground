@@ -71,6 +71,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="characters\2stickies.jpg" />
+    <Content Include="characters\character1.png" />
+    <Content Include="characters\character2.png" />
+    <Content Include="characters\character3.png" />
+    <Content Include="characters\character4.png" />
+    <Content Include="characters\CharacterMatrix.png" />
+    <Content Include="characters\characters-and-clues-result.jpg" />
+    <Content Include="characters\characters-and-clues.jpg" />
+    <Content Include="characters\cropped-iphone-characters.png" />
+    <Content Include="characters\higher-res.jpg" />
+    <Content Include="characters\iphone-characters.jpg" />
+    <Content Include="characters\manyStickies.jpg" />
     <Content Include="CUDA_EULA.txt" />
     <Content Include="CUFFT_EULA.txt" />
     <Content Include="License-LGPL.txt" />
