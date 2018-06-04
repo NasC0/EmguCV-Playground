@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
@@ -18,13 +19,18 @@ namespace EmguCV.SquareDetection
 
         public static void Main()
         {
-            using (Mat sourceImage = CvInvoke.Imread("../../../characters/WORDBRAIN-TURTLE-LEVEL-2.jpg"))
+            using (Mat sourceImage = CvInvoke.Imread("../../../characters/characters-and-clues-result.jpg"))
             {
-                Mat scaledImage = new Mat();
-                CvInvoke.Resize(sourceImage, scaledImage, Size.Empty, 1.5, 1.5);
+                //Mat scaledImage = new Mat();
+                //CvInvoke.Resize(sourceImage, scaledImage, Size.Empty, 1.5, 1.5);
 
-                IEnumerable<Rectangle> detectedRectangles = DetectSquares(scaledImage);
-                Image<Bgr, byte> destinationImage = scaledImage.ToImage<Bgr, byte>();
+                List<Rectangle> detectedRectangles = DetectSquares(sourceImage)
+                    .ToList();
+
+                Image<Bgr, byte> destinationImage = sourceImage.ToImage<Bgr, byte>();
+
+                //destinationImage.Draw(detectedRectangles[15], new Bgr(Color.DarkOrange), 2);
+                //destinationImage.Draw(detectedRectangles[16], new Bgr(Color.DarkOrange), 2);
 
                 foreach (Rectangle rectangle in detectedRectangles)
                 {
@@ -32,36 +38,23 @@ namespace EmguCV.SquareDetection
                 }
 
                 ImageViewer.Show(destinationImage);
-                destinationImage.Save("../../../characters/characters-and-clues-result.jpg");
+                destinationImage.Save("../../../characters/characters-and-clues-result-two.jpg");
             }
         }
 
         public static IEnumerable<Rectangle> DetectSquares(Mat sourceImage)
         {
-            //Mat blurredImage = new Mat();
-            //CvInvoke.MedianBlur(sourceImage, blurredImage, 9);
-
-            //Mat greyscaleImage = new Mat();
-            //CvInvoke.CvtColor(blurredImage, greyscaleImage, ColorConversion.Bgr2Gray);
-
-            //CvInvoke.Canny(greyscaleImage, greyscaleImage, 5, Treshold, 3, true);
-            //CvInvoke.Dilate(greyscaleImage, greyscaleImage, new Mat(), new Point(-1, -1), 3, BorderType.Default, new MCvScalar(255, 255, 255));
-
-            //ImageViewer.Show(greyscaleImage);
-
             Mat destinationImage = new Mat();
             destinationImage.Create(sourceImage.Rows, sourceImage.Cols, sourceImage.Depth, 1);
             Mat greyscaleImage = new Mat();
             CvInvoke.CvtColor(sourceImage, greyscaleImage, ColorConversion.Bgr2Gray);
-            //ImageViewer.Show(greyscaleImage);
 
             Mat detectedEdges = new Mat();
             CvInvoke.GaussianBlur(greyscaleImage, detectedEdges, new Size(1, 1), 1);
-            int treshold = 50;
-            CvInvoke.Canny(detectedEdges, detectedEdges, treshold, treshold * 3);
+            CvInvoke.Canny(detectedEdges, detectedEdges, Treshold, Treshold * 3);
             CvInvoke.Dilate(detectedEdges, detectedEdges, new Mat(), new Point(-1, -1), 3, BorderType.Default, new MCvScalar(255, 255, 255));
 
-            ImageViewer.Show(detectedEdges);
+            //ImageViewer.Show(detectedEdges);
 
             List<Rectangle> boxList = new List<Rectangle>();
             List<LineSegment2D> lines = new List<LineSegment2D>();
@@ -75,7 +68,7 @@ namespace EmguCV.SquareDetection
                     using (VectorOfPoint approxContour = new VectorOfPoint())
                     using (VectorOfPoint approx = contours[i])
                     {
-                        CvInvoke.ApproxPolyDP(approx, approxContour, CvInvoke.ArcLength(approx, true) * 0.05, true);
+                        CvInvoke.ApproxPolyDP(approx, approxContour, CvInvoke.ArcLength(approx, true) * 0.035, true);
                         Point[] pts = approxContour.ToArray();
                         LineSegment2D[] edges = PointCollection.PolyLine(pts, true);
                         lines.AddRange(edges);
@@ -91,7 +84,7 @@ namespace EmguCV.SquareDetection
                                     double angle = Math.Abs(edges[(j + 1) % edges.Length]
                                         .GetExteriorAngleDegree(edges[j]));
 
-                                    if (angle < 80 || angle > 100)
+                                    if (angle < 85 || angle > 95)
                                     {
                                         isRectangle = false;
                                         break;
@@ -102,10 +95,10 @@ namespace EmguCV.SquareDetection
                                 {
                                     RotatedRect currentRectangle = CvInvoke.MinAreaRect(approxContour);
                                     Rectangle minRectangle = currentRectangle.MinAreaRect();
-                                    int ninetyPercentWidth = minRectangle.Width - (int)(minRectangle.Width * 0.05);
-                                    int ninetyPercentHeight = minRectangle.Height - (int)(minRectangle.Height * 0.05);
-                                    minRectangle.Size = new Size(ninetyPercentWidth, ninetyPercentHeight);
-                                    minRectangle.Offset(5, 5);
+                                    //int ninetyPercentWidth = minRectangle.Width - (int)(minRectangle.Width * 0.05);
+                                    //int ninetyPercentHeight = minRectangle.Height - (int)(minRectangle.Height * 0.05);
+                                    //minRectangle.Size = new Size(ninetyPercentWidth, ninetyPercentHeight);
+                                    //minRectangle.Offset(5, 5);
                                     boxList.Add(minRectangle);
                                 }
                             }
