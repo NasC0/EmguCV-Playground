@@ -26,30 +26,30 @@ namespace EmguCV.OCRTesting
             //    DetectLinesInImage(scaledImage);
             //}
 
-            //using (Image<Bgr, byte> modelImage = new Image<Bgr, byte>("../../../characters/higher-res.jpg"))
-            //{
-            //    DetectRectangles(modelImage);
-            //    DetectLinesInImage(modelImage);
-            //}
+            using (Image<Bgr, byte> modelImage = new Image<Bgr, byte>("../../../../SURF_Resources/SURF_Character_Matrix_Mask.png"))
+            {
+                //DetectRectangles(modelImage);
+                DetectKeyPoints(modelImage);
+            }
 
             Console.WriteLine("Starting image recognition");
 
-            Task.Factory.StartNew(() =>
-            {
-                using (Image<Bgr, byte> image =
-                    new Image<Bgr, byte>(Path.GetFullPath("../../../characters/characters-and-clues-result.jpg")))
-                {
-                    using (Tesseract tesseractOcrProvider =
-                        new Tesseract("C:\\Program Files (x86)\\Tesseract-OCR\\tessdata", "eng", OcrEngineMode.Default))
-                    {
-                        tesseractOcrProvider.SetImage(image);
-                        tesseractOcrProvider.Recognize();
-                        Tesseract.Character[] characters = tesseractOcrProvider.GetCharacters();
-                        string text = tesseractOcrProvider.GetBoxText();
-                        Console.WriteLine(text);
-                    }
-                }
-            }).Wait();
+            //Task.Factory.StartNew(() =>
+            //{
+            //    using (Image<Bgr, byte> image =
+            //        new Image<Bgr, byte>(Path.GetFullPath("../../../characters/characters-and-clues-result.jpg")))
+            //    {
+            //        using (Tesseract tesseractOcrProvider =
+            //            new Tesseract("C:\\Program Files (x86)\\Tesseract-OCR\\tessdata", "eng", OcrEngineMode.Default))
+            //        {
+            //            tesseractOcrProvider.SetImage(image);
+            //            tesseractOcrProvider.Recognize();
+            //            Tesseract.Character[] characters = tesseractOcrProvider.GetCharacters();
+            //            string text = tesseractOcrProvider.GetBoxText();
+            //            Console.WriteLine(text);
+            //        }
+            //    }
+            //}).Wait();
 
             Console.WriteLine("Called async image recognition");
         }

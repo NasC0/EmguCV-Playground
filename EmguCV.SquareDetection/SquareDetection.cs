@@ -53,7 +53,7 @@ namespace EmguCV.SquareDetection
             destinationImage.Create(sourceImage.Rows, sourceImage.Cols, sourceImage.Depth, 1);
             Mat greyscaleImage = new Mat();
             CvInvoke.CvtColor(sourceImage, greyscaleImage, ColorConversion.Bgr2Gray);
-            //ImageViewer.Show(greyscaleImage);
+            ImageViewer.Show(greyscaleImage);
 
             Mat detectedEdges = new Mat();
             CvInvoke.GaussianBlur(greyscaleImage, detectedEdges, new Size(1, 1), 1);
@@ -61,7 +61,7 @@ namespace EmguCV.SquareDetection
             CvInvoke.Canny(detectedEdges, detectedEdges, treshold, treshold * 3);
             CvInvoke.Dilate(detectedEdges, detectedEdges, new Mat(), new Point(-1, -1), 3, BorderType.Default, new MCvScalar(255, 255, 255));
 
-            ImageViewer.Show(detectedEdges);
+            //ImageViewer.Show(detectedEdges);
 
             List<Rectangle> boxList = new List<Rectangle>();
             List<LineSegment2D> lines = new List<LineSegment2D>();
@@ -102,10 +102,10 @@ namespace EmguCV.SquareDetection
                                 {
                                     RotatedRect currentRectangle = CvInvoke.MinAreaRect(approxContour);
                                     Rectangle minRectangle = currentRectangle.MinAreaRect();
-                                    int ninetyPercentWidth = minRectangle.Width - (int)(minRectangle.Width * 0.05);
-                                    int ninetyPercentHeight = minRectangle.Height - (int)(minRectangle.Height * 0.05);
-                                    minRectangle.Size = new Size(ninetyPercentWidth, ninetyPercentHeight);
-                                    minRectangle.Offset(5, 5);
+                                    //int ninetyPercentWidth = minRectangle.Width - (int)(minRectangle.Width * 0.05);
+                                    //int ninetyPercentHeight = minRectangle.Height - (int)(minRectangle.Height * 0.05);
+                                    //minRectangle.Size = new Size(ninetyPercentWidth, ninetyPercentHeight);
+                                    //minRectangle.Offset(5, 5);
                                     boxList.Add(minRectangle);
                                 }
                             }
