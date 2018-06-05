@@ -32,10 +32,10 @@ namespace EmguCV.SquareDetection
                 //destinationImage.Draw(detectedRectangles[15], new Bgr(Color.DarkOrange), 2);
                 //destinationImage.Draw(detectedRectangles[16], new Bgr(Color.DarkOrange), 2);
 
-                foreach (Rectangle rectangle in detectedRectangles)
-                {
-                    destinationImage.Draw(rectangle, new Bgr(Color.DarkOrange), 1);
-                }
+                //foreach (Rectangle rectangle in detectedRectangles)
+                //{
+                //    destinationImage.Draw(rectangle, new Bgr(Color.DarkOrange), 1);
+                //}
 
                 ImageViewer.Show(destinationImage);
                 destinationImage.Save("../../../characters/characters-and-clues-result-two.jpg");
