@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 using Emgu.CV;
 using Emgu.CV.Cuda;
 using Emgu.CV.CvEnum;
-using Emgu.CV.OCR;
+using Emgu.CV.Features2D;
+using Emgu.CV.Flann;
 using Emgu.CV.Structure;
 using Emgu.CV.UI;
 using Emgu.CV.Util;
@@ -18,7 +18,7 @@ namespace EmguCV.OCRTesting
     {
         static void Main()
         {
-            //using (Mat image = CvInvoke.Imread("../../../characters/higher-res.jpg"))
+            //using (Mat image = CvInvoke.Imread("../../characters/higher-res.jpg"))
             //{
             //    var scaledImage = new Mat();
             //    CvInvoke.Resize(image, scaledImage, Size.Empty, 1.5, 1.5);
@@ -26,10 +26,12 @@ namespace EmguCV.OCRTesting
             //    DetectLinesInImage(scaledImage);
             //}
 
-            using (Image<Bgr, byte> modelImage = new Image<Bgr, byte>("../../../../SURF_Resources/SURF_Character_Matrix_Mask.png"))
+            using (Mat toolbarObject = CvInvoke.Imread("../../../SURF_Resources/SURF_Toolbar_Mask.png", ImreadModes.Grayscale))
+            using (Mat wordbrainObject = CvInvoke.Imread("../../../SURF_Resources/SURF_Wordbrain_Mask.png", ImreadModes.Grayscale))
+            using (Mat scene = CvInvoke.Imread("../../../characters/IMG-1ca764be45f572eab4a1f5a40a0bffa5-V.jpg", ImreadModes.Grayscale))
             {
-                //DetectRectangles(modelImage);
-                DetectKeyPoints(modelImage);
+                CompareImages(scene, toolbarObject, wordbrainObject);
+                //DetectKeyPoints(scene);
             }
 
             Console.WriteLine("Starting image recognition");
@@ -54,36 +56,82 @@ namespace EmguCV.OCRTesting
             Console.WriteLine("Called async image recognition");
         }
 
-        private static void DetectLinesInImage(Mat modelImage)
+        private static void CompareImages(Mat scene, Mat toolbarObject, Mat wordbrainObject)
         {
-            Mat destinationImage = new Mat();
-            destinationImage.Create(modelImage.Rows, modelImage.Cols, modelImage.Depth, 1);
-            Mat greyscaleImage = new Mat();
-            CvInvoke.CvtColor(modelImage, greyscaleImage, ColorConversion.Bgr2Gray);
-            //ImageViewer.Show(greyscaleImage);
+            SURFData toolbarSurfResults = ExecuteSurfDetection(toolbarObject);
+            SURFData wordbrainSurfResults = ExecuteSurfDetection(wordbrainObject);
+            SURFData sceneSurfResults = ExecuteSurfDetection(scene);
 
-            Mat detectedEdges = new Mat();
-            CvInvoke.GaussianBlur(greyscaleImage, detectedEdges, new Size(1, 1), 10);
-            //CvInvoke.Blur(greyscaleImage, detectedEdges, new Size(2, 2), new Point(0, 0));
-            int treshold = 50;
-            CvInvoke.Canny(detectedEdges, detectedEdges, treshold, treshold * 3);
-            ImageViewer.Show(detectedEdges);
+            Mat drawnMatches = new Mat();
+
+            VectorOfVectorOfDMatch toolbarMatchResults = GetSceneMatchesForModel(sceneSurfResults, toolbarSurfResults);
+            VectorOfVectorOfDMatch wordbrainMatchResults = GetSceneMatchesForModel(sceneSurfResults, wordbrainSurfResults);
+            MKeyPoint[] sceneKeyPoints = sceneSurfResults.KeyPoints.ToArray();
+
+            Point highestKeyPoint = toolbarMatchResults.ToArrayOfArray()
+                .Select(m => Point.Round(sceneKeyPoints[m[0].QueryIdx].Point))
+                .OrderBy(kp => kp.Y)
+                .FirstOrDefault();
+
+            Point lowestKeyPoint = wordbrainMatchResults.ToArrayOfArray()
+                .Select(m => Point.Round(sceneKeyPoints[m[0].QueryIdx].Point))
+                .OrderByDescending(kp => kp.Y)
+                .FirstOrDefault();
+
+            int rectangleHeight = highestKeyPoint.Y - lowestKeyPoint.Y;
+            
+            Image<Gray, byte> sceneImage = scene.ToImage<Gray, Byte>();
+            Console.WriteLine(sceneImage.Width);
+            Console.WriteLine(sceneImage.Height);
+            
+            Rectangle rectangle = new Rectangle(0, lowestKeyPoint.Y, scene.Width, rectangleHeight);
+
+            //sceneImage.Draw("X", highestKeyPoint, FontFace.HersheyPlain, 5, new Gray(255), thickness: 2);
+            //sceneImage.Draw("X", lowestKeyPoint, FontFace.HersheyPlain, 5, new Gray(255), thickness: 2);
+            //sceneImage.Draw(rectangle, new Gray(10), 5);
+            //ImageViewer.Show(sceneImage);
+            //Features2DToolbox.DrawMatches(toolbarObject, toolbarSurfResults.KeyPoints, scene,
+            //    sceneSurfResults.KeyPoints, limitMatches, drawnMatches, new MCvScalar(255), new MCvScalar(255), null, Features2DToolbox.KeypointDrawType.NotDrawSinglePoints);
+
+            Image<Gray, byte> sliced = sceneImage.Copy(rectangle);
+            sliced.Save("../../../characters/characters-and-clues-result.jpg");
+            ImageViewer.Show(sliced);
         }
 
-        private static void DetectKeyPoints(Image<Bgr, byte> image)
+        private static VectorOfVectorOfDMatch GetSceneMatchesForModel(SURFData sceneData, SURFData modelData)
         {
-            SURF surfDetector = new SURF(400, 4, 2, false);
-            MKeyPoint[] features = surfDetector.Detect(image.Mat);
+            FlannBasedMatcher matcher =
+                new FlannBasedMatcher(new HierarchicalClusteringIndexParams(), new SearchParams());
 
-            using (Image<Bgr, byte> imageWithFeatures = new Image<Bgr, byte>(image.Bitmap))
+            matcher.Add(modelData.Descriptors);
+
+            VectorOfVectorOfDMatch matches = new VectorOfVectorOfDMatch();
+            matcher.KnnMatch(sceneData.Descriptors, matches, 1, null);
+
+            MDMatch[][] newMatches = matches
+                .ToArrayOfArray()
+                .OrderBy(m => m[0].Distance)
+                .Take(8)
+                .ToArray();
+
+            VectorOfVectorOfDMatch limitMatches = new VectorOfVectorOfDMatch(newMatches);
+            matches.Dispose();
+            return limitMatches;
+        }
+
+        private static SURFData ExecuteSurfDetection(Mat scene)
+        {
+            using (SURF surfDetector = new SURF(300, 4, 2, false, true))
             {
-                foreach (MKeyPoint mKeyPoint in features)
-                {
-                    imageWithFeatures.Draw(".", new Point((int)mKeyPoint.Point.X, (int)mKeyPoint.Point.Y),
-                        FontFace.HersheyComplex, 1, new Bgr(Color.Gray));
-                }
+                Mat sceneDescriptors = new Mat();
+                VectorOfKeyPoint sceneKeyPoints = new VectorOfKeyPoint();
+                surfDetector.DetectAndCompute(scene, null, sceneKeyPoints, sceneDescriptors, false);
 
-                ImageViewer.Show(imageWithFeatures);
+                return new SURFData
+                {
+                    KeyPoints = sceneKeyPoints,
+                    Descriptors = sceneDescriptors
+                };
             }
         }
 
