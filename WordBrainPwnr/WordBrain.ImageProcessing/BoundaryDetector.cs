@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Stitching;
 using Emgu.CV.Structure;
 using Emgu.CV.UI;
 using Emgu.CV.Util;
 using WordbrainPwnr.ImageProcessing.Core;
 using WordbrainPwnr.ImageProcessing.Core.Models;
+using ZedGraph;
 
 namespace WordBrain.ImageProcessing
 {
@@ -41,12 +43,25 @@ namespace WordBrain.ImageProcessing
                 .Take(splitBoxesCount)
                 .ToList();
 
+            VectorOfMat matVector = new VectorOfMat();
             foreach (Rectangle rectangle in characterBoxes)
             {
+                Image<Gray, byte> currentCharacterImage = grayscalePlayingField.Copy(rectangle);
+                matVector.Push(currentCharacterImage);
                 grayscalePlayingField.Draw(rectangle, new Gray(50));
             }
 
-            ImageViewer.Show(grayscalePlayingField);
+            Mat mat = new Mat();
+            Image<Gray, byte> image = new Image<Gray, byte>(new Size(1200, 1700));
+            Stitcher stitcher = new Stitcher(Stitcher.Mode.Scans, true);
+            Stitcher.Status status = stitcher.Stitch(matVector, image);
+            ImageViewer.Show(image);
+
+            //Image concatenation:
+            // https://stackoverflow.com/questions/33239669/opencv-how-to-merge-two-images
+            // http://answers.opencv.org/question/175912/how-to-display-multiple-images-in-one-window/
+
+            //ImageViewer.Show(grayscalePlayingField);
 
             return new PlayingFieldData
             {
