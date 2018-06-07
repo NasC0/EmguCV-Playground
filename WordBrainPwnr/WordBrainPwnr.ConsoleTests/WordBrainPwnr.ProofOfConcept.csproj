@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="PoC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +53,10 @@
     <ProjectReference Include="..\WordBrain.ImageProcessing\WordBrain.ImageProcessing.csproj">
       <Project>{143214E1-AFC3-4EF0-85BB-B675E54BA03D}</Project>
       <Name>WordBrain.ImageProcessing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WordbrainPwnr.ImageProcessing.Core\WordbrainPwnr.ImageProcessing.Core.csproj">
+      <Project>{6618E0A8-157E-4AE0-A53C-405A1ADEED94}</Project>
+      <Name>WordbrainPwnr.ImageProcessing.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Emgu.CV;
 using Emgu.CV.Structure;
-using Emgu.CV.UI;
 using Emgu.CV.Util;
 using Emgu.CV.XFeatures2D;
 using WordBrain.ImageProcessing.Contracts;
@@ -89,17 +87,9 @@ namespace WordBrain.ImageProcessing
                 int rectangleHeight = bottomMostPoint.Y - topMostPoint.Y;
                 Rectangle rectangle = new Rectangle(0, topMostPoint.Y, convertedToGrayscale.Width, rectangleHeight);
                 Image<Bgr, byte> limitedImage = new Image<Bgr, byte>(image) {ROI = rectangle};
-                limitedImage.Draw(rectangle, new Bgr(Color.DarkOrange), 2);
+                byte[] limitedImageByteArray = limitedImage.ToJpegData();
 
-                byte[] imageByteArray;
-                using (MemoryStream limitedImageStream = new MemoryStream())
-                {
-                    //TODO: Crop bitmap
-                    limitedImage.ToBitmap().Save(limitedImageStream, ImageFormat.Png);
-                    imageByteArray = limitedImageStream.ToArray();
-                }
-
-                return imageByteArray;
+                return limitedImageByteArray;
             }
         }
 
@@ -123,7 +113,7 @@ namespace WordBrain.ImageProcessing
         {
             string[] directoryFiles = Directory.GetFiles(path);
             List<Mat> surfResources = new List<Mat>();
-            foreach (var directoryFile in directoryFiles)
+            foreach (string directoryFile in directoryFiles)
             {
                 Bitmap imageBitmap = (Bitmap)Image.FromFile(directoryFile);
                 surfResources.Add((new Image<Gray, byte>(imageBitmap).Mat));
@@ -147,7 +137,7 @@ namespace WordBrain.ImageProcessing
 
         public EdgeData GetEdgeDataForMatchingPoints(IEnumerable<Point> points)
         {
-            var keyPoints = points.ToList();
+            List<Point> keyPoints = points.ToList();
             int keyPointHeightSum = (keyPoints.Sum(p => p.Y) / keyPoints.Count);
             if (keyPointHeightSum > 0)
             {

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordbrainPwnr.ImageProcessi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrain.ImageProcessing", "WordBrain.ImageProcessing\WordBrain.ImageProcessing.csproj", "{143214E1-AFC3-4EF0-85BB-B675E54BA03D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.ConsoleTests", "WordBrainPwnr.ConsoleTests\WordBrainPwnr.ConsoleTests.csproj", "{0B9BDDA2-D9B9-4192-A811-111157871A3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.ProofOfConcept", "WordBrainPwnr.ConsoleTests\WordBrainPwnr.ProofOfConcept.csproj", "{0B9BDDA2-D9B9-4192-A811-111157871A3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

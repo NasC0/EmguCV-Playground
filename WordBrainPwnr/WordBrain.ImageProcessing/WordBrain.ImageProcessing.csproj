@@ -53,7 +53,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoundaryDetector.cs" />
     <Compile Include="Contracts\IMatcher.cs" />
+    <Compile Include="ImageManipulation.cs" />
     <Compile Include="Matchers\FlannMatcher.cs" />
     <Compile Include="Models\EdgeData.cs" />
     <Compile Include="Models\SurfData.cs" />

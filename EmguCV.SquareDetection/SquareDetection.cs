@@ -57,7 +57,7 @@ namespace EmguCV.SquareDetection
             //ImageViewer.Show(detectedEdges);
 
             List<Rectangle> boxList = new List<Rectangle>();
-            List<LineSegment2D> lines = new List<LineSegment2D>();
+            //List<LineSegment2D> lines = new List<LineSegment2D>();
 
             using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
@@ -71,9 +71,10 @@ namespace EmguCV.SquareDetection
                         CvInvoke.ApproxPolyDP(approx, approxContour, CvInvoke.ArcLength(approx, true) * 0.035, true);
                         Point[] pts = approxContour.ToArray();
                         LineSegment2D[] edges = PointCollection.PolyLine(pts, true);
-                        lines.AddRange(edges);
+                        //lines.AddRange(edges);
 
-                        if (CvInvoke.ContourArea(approxContour, true) > 500)
+                        double contourArea = CvInvoke.ContourArea(approxContour, true);
+                        if (contourArea >= 500 && contourArea <= detectedEdges.Width * detectedEdges.Height / 5)
                         {
                             if (approxContour.Size >= 2)
                             {
