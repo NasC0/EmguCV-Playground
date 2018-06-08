@@ -17,7 +17,7 @@ namespace WordBrainPwnr.ConsoleTests
             {
                 IMatcher matcher = new FlannMatcher(8, 1);
                 IPlayingFieldDetector surfDetector = new SurfPlayingFieldDetector("../../SURF_Resources", matcher);
-                Image image = Image.FromFile("../../Screenshot_20180530-100638_WordBrain.jpg");
+                Image image = Image.FromFile("../../IMG-1ca764be45f572eab4a1f5a40a0bffa5-V.jpg");
                 image.Save(ms, ImageFormat.Png);
                 byte[] byteArray = ms.ToArray();
 

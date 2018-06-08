@@ -44,6 +44,7 @@
     <Compile Include="IBoundaryDetector.cs" />
     <Compile Include="IImageManipulation.cs" />
     <Compile Include="IPlayingFieldDetector.cs" />
+    <Compile Include="Models\Hint.cs" />
     <Compile Include="Models\PlayingFieldData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

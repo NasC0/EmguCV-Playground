@@ -5,13 +5,10 @@ using System.IO;
 using System.Linq;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
-using Emgu.CV.Stitching;
 using Emgu.CV.Structure;
-using Emgu.CV.UI;
 using Emgu.CV.Util;
 using WordbrainPwnr.ImageProcessing.Core;
 using WordbrainPwnr.ImageProcessing.Core.Models;
-using ZedGraph;
 
 namespace WordBrain.ImageProcessing
 {
@@ -43,31 +40,97 @@ namespace WordBrain.ImageProcessing
                 .Take(splitBoxesCount)
                 .ToList();
 
-            VectorOfMat matVector = new VectorOfMat();
-            foreach (Rectangle rectangle in characterBoxes)
-            {
-                Image<Gray, byte> currentCharacterImage = grayscalePlayingField.Copy(rectangle);
-                matVector.Push(currentCharacterImage);
-                grayscalePlayingField.Draw(rectangle, new Gray(50));
-            }
-
-            Mat mat = new Mat();
-            Image<Gray, byte> image = new Image<Gray, byte>(new Size(1200, 1700));
-            Stitcher stitcher = new Stitcher(Stitcher.Mode.Scans, true);
-            Stitcher.Status status = stitcher.Stitch(matVector, image);
-            ImageViewer.Show(image);
-
-            //Image concatenation:
-            // https://stackoverflow.com/questions/33239669/opencv-how-to-merge-two-images
-            // http://answers.opencv.org/question/175912/how-to-display-multiple-images-in-one-window/
-
-            //ImageViewer.Show(grayscalePlayingField);
+            GetCharacters(grayscalePlayingField, characterBoxes);
+            IEnumerable<Hint> hints = GetHintCandidates(grayscalePlayingField, hintBoxes);
 
             return new PlayingFieldData
             {
                 CharacterBoundaries = characterBoxes,
                 HintBoundaries = hintBoxes
             };
+        }
+
+        private void GetCharacters(Image<Gray, byte> playingField, IEnumerable<Rectangle> characterBoundaries)
+        {
+            List<Rectangle> characterBoundariesList = characterBoundaries.Reverse().ToList();
+            int maxRowSize = characterBoundariesList.Max(c => c.Height);
+
+            Image<Gray, byte> combine =
+                GetEnlargedBoundingRoiImage(playingField, characterBoundariesList.FirstOrDefault(), maxRowSize);
+
+            for (int i = 1; i < characterBoundariesList.Count; i++)
+            {
+                Rectangle currentRectangle = characterBoundariesList[i];
+                Image<Gray, byte> enlargedBoundingImage = GetEnlargedBoundingRoiImage(playingField, currentRectangle, maxRowSize);
+                CvInvoke.HConcat(combine, enlargedBoundingImage, combine);
+            }
+            
+            combine.Save("../../result.png");
+        }
+
+        private IEnumerable<Hint> GetHintCandidates(Image<Gray, byte> playingField, IEnumerable<Rectangle> hintsBoundaries)
+        {
+            IEnumerable<Hint> hints = GetHints(hintsBoundaries);
+            return hints;
+        }
+
+        private IEnumerable<Hint> GetHints(IEnumerable<Rectangle> hintsBoundaries)
+        {
+            List<Rectangle> hintsBoundariesList = hintsBoundaries.Reverse().ToList();
+            int maxHintBoxWidth = hintsBoundariesList.Max(h => h.Width);
+            int approximateMaxDistanceBetweenHints = maxHintBoxWidth / 2;
+
+            List<Hint> hints = new List<Hint>();
+            List<Rectangle> maxCurrentCandidate = new List<Rectangle>();
+            for (int i = 0; i < hintsBoundariesList.Count; i++)
+            {
+                Rectangle currentRectangle = hintsBoundariesList[i];
+                maxCurrentCandidate.Add(currentRectangle);
+
+                if (i == hintsBoundariesList.Count - 1)
+                {
+                    Hint hint = new Hint()
+                    {
+                        HintSize = maxCurrentCandidate.Count,
+                        BoundingBoxes = maxCurrentCandidate
+                    };
+
+                    hints.Add(hint);
+                    break;
+                }
+
+                Rectangle nextRectangle = hintsBoundariesList[i + 1];
+                int distanceBetweenPreviousXEndPointAndCurrentStartingPoint = nextRectangle.X - (currentRectangle.X + currentRectangle.Width);
+                int widthDifference = Math.Abs(nextRectangle.Width - currentRectangle.Width);
+
+                int distanceBetweenPreviousYEndPointAndCurrentStartingPoint = nextRectangle.Y - (currentRectangle.Y + currentRectangle.Height);
+                int heightDifference = Math.Abs(nextRectangle.Height - currentRectangle.Height);
+
+                if (distanceBetweenPreviousXEndPointAndCurrentStartingPoint >= widthDifference + approximateMaxDistanceBetweenHints ||
+                    distanceBetweenPreviousYEndPointAndCurrentStartingPoint > heightDifference)
+                {
+                    Hint hint = new Hint
+                    {
+                        HintSize = maxCurrentCandidate.Count,
+                        BoundingBoxes = maxCurrentCandidate
+                    };
+
+                    hints.Add(hint);
+                    maxCurrentCandidate = new List<Rectangle>();
+                }
+            }
+
+            return hints;
+        }
+
+        private Image<Gray, byte> GetEnlargedBoundingRoiImage(Image<Gray, byte> playingField, Rectangle roi,
+            int rowSize)
+        {
+            Rectangle enlargedRectangle = roi;
+            enlargedRectangle.Height = rowSize;
+
+            Image<Gray, byte> boundary = playingField.Copy(enlargedRectangle);
+            return boundary;
         }
 
         private IEnumerable<Rectangle> GetBoundariesForProcessedImage(Mat edges)

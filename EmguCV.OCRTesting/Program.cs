@@ -42,10 +42,10 @@ namespace EmguCV.OCRTesting
             Task.Factory.StartNew(() =>
             {
                 using (Image<Bgr, byte> image =
-                    new Image<Bgr, byte>(Path.GetFullPath("../../../characters/characters-and-clues-result.jpg")))
+                    new Image<Bgr, byte>(Path.GetFullPath("../../../characters/result.png")))
                 {
                     using (Tesseract tesseractOcrProvider =
-                        new Tesseract("C:\\Program Files (x86)\\Tesseract-OCR\\tessdata", "eng", OcrEngineMode.Default))
+                        new Tesseract("C:\\Program Files (x86)\\Tesseract-OCR\\tessdata", "eng", OcrEngineMode.TesseractOnly))
                     {
                         tesseractOcrProvider.SetImage(image);
                         tesseractOcrProvider.Recognize();
