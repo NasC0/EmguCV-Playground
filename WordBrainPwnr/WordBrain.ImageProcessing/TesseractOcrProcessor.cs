@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -53,17 +52,22 @@ namespace WordBrain.ImageProcessing
         private IEnumerable<Tesseract.Character> DiscardUncenteredCharacters(
             IEnumerable<Tesseract.Character> characters)
         {
+            List<Tesseract.Character> charactersList = characters.ToList();
             List<Tesseract.Character> leftoverCharacters = new List<Tesseract.Character>();
-            double minBottom = characters.Average(c => c.Region.Bottom) / 2;
 
-            foreach (Tesseract.Character character in characters)
+            if (charactersList.Any())
             {
-                if (character.Region.Bottom < minBottom)
-                {
-                    continue;
-                }
+                double minBottom = charactersList.Average(c => c.Region.Bottom) / 2;
 
-                leftoverCharacters.Add(character);
+                foreach (Tesseract.Character character in charactersList)
+                {
+                    if (character.Region.Bottom < minBottom)
+                    {
+                        continue;
+                    }
+
+                    leftoverCharacters.Add(character);
+                }
             }
 
             return leftoverCharacters;

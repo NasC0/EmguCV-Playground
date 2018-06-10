@@ -102,6 +102,8 @@ namespace WordBrain.ImageProcessing
         {
             List<Hint> hints = GetHints(hintsBoundaries).ToList();
 
+            string directoryName = Guid.NewGuid().ToString();
+            Directory.CreateDirectory($".\\{directoryName}");
             foreach (Hint hint in hints)
             {
                 List<Rectangle> ocrCandidates = new List<Rectangle>();
@@ -119,6 +121,9 @@ namespace WordBrain.ImageProcessing
                     hint.IsOcrCandidate = true;
                     Image<Gray, byte> hintBoxes = CombineBoxes(playingField, ocrCandidates);
                     hint.OcrCandidate = hintBoxes.ToJpegData();
+
+                    string fileName = $"{Guid.NewGuid().ToString()}.png";
+                    hintBoxes.Save($"{directoryName}\\{fileName}");
                 }
             }
 

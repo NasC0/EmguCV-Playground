@@ -16,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tesseract Training Data", "
 		Resources\Tesseract Training Data\eng-wordbrain.traineddata = Resources\Tesseract Training Data\eng-wordbrain.traineddata
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.DataStructures.Core", "WordBrainPwnr.DataStructures.Core\WordBrainPwnr.DataStructures.Core.csproj", "{C71F1D70-901F-4FCA-81AA-28AA86063531}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.DataStructures", "WordBrainPwnr.DataStructures\WordBrainPwnr.DataStructures.csproj", "{5BB65B99-6BBF-4575-A9CD-7C70D3531A05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,14 @@ Global
 		{0B9BDDA2-D9B9-4192-A811-111157871A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B9BDDA2-D9B9-4192-A811-111157871A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B9BDDA2-D9B9-4192-A811-111157871A3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C71F1D70-901F-4FCA-81AA-28AA86063531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C71F1D70-901F-4FCA-81AA-28AA86063531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C71F1D70-901F-4FCA-81AA-28AA86063531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C71F1D70-901F-4FCA-81AA-28AA86063531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BB65B99-6BBF-4575-A9CD-7C70D3531A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BB65B99-6BBF-4575-A9CD-7C70D3531A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BB65B99-6BBF-4575-A9CD-7C70D3531A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BB65B99-6BBF-4575-A9CD-7C70D3531A05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
