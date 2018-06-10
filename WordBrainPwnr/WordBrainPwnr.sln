@@ -13,12 +13,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Resources", "_Resources", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tesseract Training Data", "Tesseract Training Data", "{5ECC7CC3-C058-4882-930F-1E8BEFA9FF95}"
 	ProjectSection(SolutionItems) = preProject
-		Resources\Tesseract Training Data\eng-wordbrain.traineddata = Resources\Tesseract Training Data\eng-wordbrain.traineddata
+		Resources\TesseractTrainingData\eng-wordbrain.traineddata = Resources\TesseractTrainingData\eng-wordbrain.traineddata
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.DataStructures.Core", "WordBrainPwnr.DataStructures.Core\WordBrainPwnr.DataStructures.Core.csproj", "{C71F1D70-901F-4FCA-81AA-28AA86063531}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.DataStructures", "WordBrainPwnr.DataStructures\WordBrainPwnr.DataStructures.csproj", "{5BB65B99-6BBF-4575-A9CD-7C70D3531A05}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "English Words", "English Words", "{8C016351-5D66-4C84-A1FD-5C7443C7A5D6}"
+	ProjectSection(SolutionItems) = preProject
+		Resources\EnglishWords\words_alpha.txt = Resources\EnglishWords\words_alpha.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +57,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5ECC7CC3-C058-4882-930F-1E8BEFA9FF95} = {98F652F5-19F7-4623-8791-C4FDB35557D5}
+		{8C016351-5D66-4C84-A1FD-5C7443C7A5D6} = {98F652F5-19F7-4623-8791-C4FDB35557D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A5CA24AD-98D5-4954-8D70-07305D1D67A7}

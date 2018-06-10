@@ -33,17 +33,9 @@ namespace WordBrainPwnr.ConsoleTests
 
                 IOcrProcessor processor = new TesseractOcrProcessor("C:\\Program Files\\Tesseract-OCR\\tessdata", "eng-wordbrain");
 
-                List<string> strings = new List<string>
-                {
-                    "Peter",
-                    "Piper",
-                    "picked",
-                    "peck",
-                    "pickled",
-                    "peppers"
-                };
+                IEnumerable<string> allWords = File.ReadLines("../../../Resources/EnglishWords/words_alpha.txt");
 
-                ITrie trie = Trie.BuildTrie(strings);
+                ITrie trie = Trie.BuildTrie(allWords);
                 Node root = trie.RootNode;
 
                 Console.WriteLine("Character matrix");
@@ -51,34 +43,85 @@ namespace WordBrainPwnr.ConsoleTests
                 int matrixSize = (int)Math.Sqrt(boundaries.Characters.CharacterCount);
 
                 int currentIndex = 0;
+                char[,] characterMatrix = new char[matrixSize, matrixSize];
                 for (int i = 0; i < matrixSize; i++)
                 {
                     for (int j = 0; j < matrixSize; j++)
                     {
-                        Console.Write($"{characters[currentIndex]} ");
+                        characterMatrix[i, j] = char.Parse(characters[currentIndex]);
                         currentIndex++;
                     }
-
-                    Console.WriteLine();
                 }
 
                 Console.WriteLine("Hints");
+                List<string> hintCharacters = new List<string>();
                 foreach (Hint boundariesHint in boundaries.Hints)
                 {
                     if (boundariesHint.IsOcrCandidate)
                     {
-                        IEnumerable<string> hintCharacters =
-                            processor.GetCharactersFromImage(boundariesHint.OcrCandidate);
+                        IEnumerable<string> currentHintCharacters =
+                            processor.GetCharactersFromImage(boundariesHint.OcrCandidate)
+                                .ToList();
 
-                        foreach (string hintCharacter in hintCharacters)
+                        string hint = string.Empty;
+                        if (currentHintCharacters.Any())
                         {
-                            Console.Write($"{hintCharacter} ");
+                            hint = string.Join("", currentHintCharacters);
                         }
 
-                        Console.WriteLine();
+                        bool possibleSolution = true;
+                        while (possibleSolution)
+                        {
+
+                        }
                     }
                 }
             }
+        }
+
+        private static IEnumerable<Solution> GetPossibleSolutionsForHint(ITrie wordTrie, char[,] characterMatrix,
+            Hint hint, IOcrProcessor ocrProcessor)
+        {
+            List<Solution> possibleSolutions = new List<Solution>();
+            string hintString = string.Empty;
+            if (hint.IsOcrCandidate)
+            {
+                IEnumerable<string> hintCharacters = ocrProcessor.GetCharactersFromImage(hint.OcrCandidate);
+                hintString = string.Join("", hintCharacters);
+            }
+
+            Node currentNode = wordTrie.Prefix(hintString);
+            HintLocation startingPoint = GetStartingPoint(characterMatrix, hintString);
+
+            if (startingPoint.IsFoundInMatrix)
+            {
+
+            }
+
+            return possibleSolutions;
+        }
+
+        private static HintLocation GetStartingPoint(char[,] characterMatrix, string hint)
+        {
+            if (string.IsNullOrWhiteSpace(hint))
+            {
+                return new HintLocation();
+            }
+
+            char lastHintCharacter = hint[hint.Length - 1];
+
+            for (int row = 0; row < characterMatrix.Length; row++)
+            {
+                for (int col = 0; col < characterMatrix.Length; col++)
+                {
+                    if (characterMatrix[row, col] == lastHintCharacter)
+                    {
+                        return new HintLocation(row, col, true);
+                    }
+                }
+            }
+
+            return new HintLocation();
         }
     }
 }
