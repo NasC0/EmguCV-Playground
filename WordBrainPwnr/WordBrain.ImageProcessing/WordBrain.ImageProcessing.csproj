@@ -58,7 +58,9 @@
     <Compile Include="ImageManipulation.cs" />
     <Compile Include="Matchers\FlannMatcher.cs" />
     <Compile Include="Models\EdgeData.cs" />
+    <Compile Include="Models\Local\MatrixRow.cs" />
     <Compile Include="Models\SurfData.cs" />
+    <Compile Include="TesseractOcrProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SurfPlayingFieldDetector.cs" />
   </ItemGroup>

@@ -41,12 +41,14 @@ namespace EmguCV.OCRTesting
 
             Task.Factory.StartNew(() =>
             {
-                using (Image<Bgr, byte> image =
-                    new Image<Bgr, byte>(Path.GetFullPath("../../../characters/result.png")))
+                using (Image<Gray, byte> image =
+                    new Image<Gray, byte>(Path.GetFullPath("../../../characters/result.png")))
                 {
                     using (Tesseract tesseractOcrProvider =
-                        new Tesseract("C:\\Program Files (x86)\\Tesseract-OCR\\tessdata", "eng", OcrEngineMode.TesseractOnly))
+                        new Tesseract("C:\\Program Files\\Tesseract-OCR\\tessdata", "eng", OcrEngineMode.TesseractLstmCombined))
                     {
+                        tesseractOcrProvider.SetVariable("segment_reward_chartype", "0.9");
+                        tesseractOcrProvider.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
                         tesseractOcrProvider.SetImage(image);
                         tesseractOcrProvider.Recognize();
                         Tesseract.Character[] characters = tesseractOcrProvider.GetCharacters();

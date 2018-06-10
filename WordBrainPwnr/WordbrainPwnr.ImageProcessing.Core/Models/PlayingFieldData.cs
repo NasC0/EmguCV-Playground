@@ -5,8 +5,8 @@ namespace WordbrainPwnr.ImageProcessing.Core.Models
 {
     public class PlayingFieldData
     {
-        public IEnumerable<Rectangle> CharacterBoundaries { get; set; }
+        public Characters Characters { get; set; }
 
-        public IEnumerable<Rectangle> HintBoundaries { get; set; }
+        public IEnumerable<Hint> Hints { get; set; }
     }
 }

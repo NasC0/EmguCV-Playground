@@ -9,6 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrain.ImageProcessing",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordBrainPwnr.ProofOfConcept", "WordBrainPwnr.ConsoleTests\WordBrainPwnr.ProofOfConcept.csproj", "{0B9BDDA2-D9B9-4192-A811-111157871A3D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Resources", "_Resources", "{98F652F5-19F7-4623-8791-C4FDB35557D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tesseract Training Data", "Tesseract Training Data", "{5ECC7CC3-C058-4882-930F-1E8BEFA9FF95}"
+	ProjectSection(SolutionItems) = preProject
+		Resources\Tesseract Training Data\eng-wordbrain.traineddata = Resources\Tesseract Training Data\eng-wordbrain.traineddata
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +37,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5ECC7CC3-C058-4882-930F-1E8BEFA9FF95} = {98F652F5-19F7-4623-8791-C4FDB35557D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A5CA24AD-98D5-4954-8D70-07305D1D67A7}
