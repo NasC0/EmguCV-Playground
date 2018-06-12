@@ -20,6 +20,8 @@ namespace WordBrainPwnr.DataStructures
                     prefix.ChildNodes.Add(newNode);
                     prefix = newNode;
                 }
+
+                prefix.IsWholeWord = true;
             }
 
             return result;
@@ -34,17 +36,14 @@ namespace WordBrainPwnr.DataStructures
 
         public bool WordExists(string word)
         {
-            Node currentNode = RootNode;
+            Node node = GetWordNode(word);
+            return node != null;
+        }
 
-            foreach (char character in word)
-            {
-                if (currentNode.FindChildNode(character) == null)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+        public bool IsFullWord(string word)
+        {
+            Node node = GetWordNode(word);
+            return node.IsWholeWord;
         }
 
         public Node Prefix(string word)
@@ -61,6 +60,24 @@ namespace WordBrainPwnr.DataStructures
             }
 
             return result;
+        }
+
+        private Node GetWordNode(string word)
+        {
+            Node currentNode = RootNode;
+
+            foreach (char character in word)
+            {
+                Node childNode = currentNode.FindChildNode(character);
+                if (childNode == null)
+                {
+                    return null;
+                }
+
+                currentNode = childNode;
+            }
+
+            return currentNode;
         }
     }
 }

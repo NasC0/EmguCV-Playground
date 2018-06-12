@@ -23,6 +23,8 @@ namespace WordBrainPwnr.DataStructures.Core.Structures
 
         public int Length { get; private set; }
 
+        public bool IsWholeWord { get; set; }
+
         public Node FindChildNode(char c)
         {
             char toUpper = char.ToUpper(c);

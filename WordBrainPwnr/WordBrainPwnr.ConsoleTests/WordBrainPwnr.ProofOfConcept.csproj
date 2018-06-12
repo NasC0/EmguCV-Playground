@@ -56,6 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HintLocation.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="Move.cs" />
+    <Compile Include="MoveDirection.cs" />
     <Compile Include="PoC.cs" />
     <Compile Include="PossibleSolution.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

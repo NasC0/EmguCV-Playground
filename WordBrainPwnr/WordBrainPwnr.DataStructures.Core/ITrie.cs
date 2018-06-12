@@ -9,6 +9,8 @@ namespace WordBrainPwnr.DataStructures.Core
 
         bool WordExists(string word);
 
+        bool IsFullWord(string word);
+
         Node Prefix(string word);
     }
 }

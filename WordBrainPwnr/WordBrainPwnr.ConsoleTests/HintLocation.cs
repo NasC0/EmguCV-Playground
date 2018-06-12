@@ -1,27 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WordBrainPwnr.ConsoleTests
+﻿namespace WordBrainPwnr.ConsoleTests
 {
-    public class HintLocation
+    public class HintLocation : Location
     {
         public HintLocation()
         {
         }
 
         public HintLocation(int row, int col, bool isFoundInMatrix)
+            : base(row, col)
         {
-            Row = row;
-            Col = col;
             IsFoundInMatrix = isFoundInMatrix;
         }
-
-        public int Row { get; set; }
-
-        public int Col { get; set; }
 
         public bool IsFoundInMatrix { get; set; }
     }

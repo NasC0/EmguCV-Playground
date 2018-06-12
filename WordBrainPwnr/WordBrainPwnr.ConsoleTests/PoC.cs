@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,7 +12,6 @@ using WordbrainPwnr.ImageProcessing.Core;
 using WordbrainPwnr.ImageProcessing.Core.Models;
 using WordBrainPwnr.DataStructures;
 using WordBrainPwnr.DataStructures.Core;
-using WordBrainPwnr.DataStructures.Core.Structures;
 
 namespace WordBrainPwnr.ConsoleTests
 {
@@ -23,7 +23,7 @@ namespace WordBrainPwnr.ConsoleTests
             {
                 IMatcher matcher = new FlannMatcher(8, 1);
                 IPlayingFieldDetector surfDetector = new SurfPlayingFieldDetector("../../SURF_Resources", matcher);
-                Image image = Image.FromFile("../../Rat_18.jpg");
+                Image image = Image.FromFile("../../IMG-1ca764be45f572eab4a1f5a40a0bffa5-V.jpg");
                 image.Save(ms, ImageFormat.Png);
                 byte[] byteArray = ms.ToArray();
 
@@ -36,14 +36,13 @@ namespace WordBrainPwnr.ConsoleTests
                 IEnumerable<string> allWords = File.ReadLines("../../../Resources/EnglishWords/words_alpha.txt");
 
                 ITrie trie = Trie.BuildTrie(allWords);
-                Node root = trie.RootNode;
 
                 Console.WriteLine("Character matrix");
                 List<string> characters = processor.GetCharactersFromImage(boundaries.Characters.CharacterMatrix).ToList();
                 int matrixSize = (int)Math.Sqrt(boundaries.Characters.CharacterCount);
 
                 int currentIndex = 0;
-                char[,] characterMatrix = new char[matrixSize, matrixSize];
+                char?[,] characterMatrix = new char?[matrixSize, matrixSize];
                 for (int i = 0; i < matrixSize; i++)
                 {
                     for (int j = 0; j < matrixSize; j++)
@@ -55,47 +54,74 @@ namespace WordBrainPwnr.ConsoleTests
 
                 Console.WriteLine("Hints");
                 List<string> hintCharacters = new List<string>();
-                foreach (Hint boundariesHint in boundaries.Hints)
+                Hint hint = boundaries.Hints.FirstOrDefault();
+
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                IEnumerable<string> possibleSolutions = GetPossibleSolutionsForHint(trie, characterMatrix, hint);
+                sw.Stop();
+
+                Console.WriteLine(sw.Elapsed);
+
+                foreach (string possibleSolution in possibleSolutions)
                 {
-                    if (boundariesHint.IsOcrCandidate)
-                    {
-                        IEnumerable<string> currentHintCharacters =
-                            processor.GetCharactersFromImage(boundariesHint.OcrCandidate)
-                                .ToList();
-
-                        string hint = string.Empty;
-                        if (currentHintCharacters.Any())
-                        {
-                            hint = string.Join("", currentHintCharacters);
-                        }
-
-                        bool possibleSolution = true;
-                        while (possibleSolution)
-                        {
-
-                        }
-                    }
+                    Console.WriteLine(possibleSolution);
                 }
             }
         }
 
-        private static IEnumerable<Solution> GetPossibleSolutionsForHint(ITrie wordTrie, char[,] characterMatrix,
-            Hint hint, IOcrProcessor ocrProcessor)
+        private static IEnumerable<string> GetPossibleSolutionsForHint(ITrie wordTrie, char?[,] characterMatrix,
+            Hint hint)
         {
-            List<Solution> possibleSolutions = new List<Solution>();
-            string hintString = string.Empty;
-            if (hint.IsOcrCandidate)
+            List<string> possibleSolutions = new List<string>();
+            //string hintString = string.Empty;
+            //if (hint.IsOcrCandidate)
+            //{
+            //    IEnumerable<string> hintCharacters = ocrProcessor.GetCharactersFromImage(hint.OcrCandidate);
+            //    hintString = string.Join("", hintCharacters);
+            //}
+
+            //Node currentNode = wordTrie.Prefix(hintString);
+            //HintLocation startingPoint = GetStartingPoint(characterMatrix, hintString);
+
+            //if (startingPoint.IsFoundInMatrix)
+            //{
+
+            //}
+
+            int matrixRows = characterMatrix.GetLength(0);
+            int matrixCols = characterMatrix.GetLength(1);
+            for (int rows = 0; rows < matrixRows; rows++)
             {
-                IEnumerable<string> hintCharacters = ocrProcessor.GetCharactersFromImage(hint.OcrCandidate);
-                hintString = string.Join("", hintCharacters);
-            }
+                for (int cols = 0; cols < matrixCols; cols++)
+                {
+                    string currentValue = characterMatrix[rows, cols].ToString();
+                    Move initialMove = new Move(currentValue, 1, new Location(rows, cols));
+                    Queue<Move> moveQueue = new Queue<Move>();
+                    moveQueue.Enqueue(initialMove);
 
-            Node currentNode = wordTrie.Prefix(hintString);
-            HintLocation startingPoint = GetStartingPoint(characterMatrix, hintString);
+                    while (moveQueue.Count > 0)
+                    {
+                        Move currentMove = moveQueue.Dequeue();
+                        currentMove.Parent?.VisitChild(currentMove);
 
-            if (startingPoint.IsFoundInMatrix)
-            {
+                        if (wordTrie.WordExists(currentMove.Value))
+                        {
+                            if (currentMove.Depth == hint.HintSize && wordTrie.IsFullWord(currentMove.Value))
+                            {
+                                possibleSolutions.Add(currentMove.Value);
+                                continue;
+                            }
 
+                            IEnumerable<Move> availableMoves = GetAvailableMoves(currentMove, characterMatrix);
+                            foreach (Move availableMove in availableMoves)
+                            {
+                                currentMove.AddChild(availableMove);
+                                moveQueue.Enqueue(availableMove);
+                            }
+                        }
+                    }
+                }
             }
 
             return possibleSolutions;
@@ -122,6 +148,75 @@ namespace WordBrainPwnr.ConsoleTests
             }
 
             return new HintLocation();
+        }
+
+        public static IEnumerable<Move> GetAvailableMoves(Move currentMove, char?[,] matrix)
+        {
+            IEnumerable<Location> previousLocations = currentMove.GetTraversedLocations();
+            IEnumerable<Location> possibleLocations = GetPossibleLocations(previousLocations, currentMove.Location,
+                matrix.GetLength(0), matrix.GetLength(1));
+
+            List<Move> availableMoves = new List<Move>();
+            foreach (Location possibleLocation in possibleLocations)
+            {
+                char? matrixCharacter = matrix[possibleLocation.Row, possibleLocation.Col];
+                if (!matrixCharacter.HasValue)
+                {
+                    continue;
+                }
+
+                string value = currentMove.Value + matrixCharacter;
+                Move availableMove = new Move(currentMove, value, currentMove.Depth + 1, possibleLocation);
+                availableMoves.Add(availableMove);
+            }
+
+            return availableMoves;
+        }
+
+        public static IEnumerable<Location> GetPossibleLocations(IEnumerable<Location> previousLocations,
+            Location currentLocation, int rows, int cols)
+        {
+            List<Location> allAvailableLocations = new List<Location>
+            {
+                Move(MoveDirection.Up, currentLocation),
+                Move(MoveDirection.Down, currentLocation),
+                Move(MoveDirection.Left, currentLocation),
+                Move(MoveDirection.Right, currentLocation),
+                Move(MoveDirection.UpLeft, currentLocation),
+                Move(MoveDirection.UpRight, currentLocation),
+                Move(MoveDirection.DownLeft, currentLocation),
+                Move(MoveDirection.DownRight, currentLocation)
+            };
+
+            IEnumerable<Location> viableLocations = allAvailableLocations.Where(l =>
+                (l.Row >= 0 && l.Row < rows) && (l.Col >= 0 && l.Col < cols) && !previousLocations.Any(pl => pl.Equals(l)));
+
+            return viableLocations;
+        }
+
+        public static Location Move(MoveDirection direction, Location currentLocation)
+        {
+            switch (direction)
+            {
+                case MoveDirection.Up:
+                    return new Location(currentLocation.Row - 1, currentLocation.Col);
+                case MoveDirection.Down:
+                    return new Location(currentLocation.Row + 1, currentLocation.Col);
+                case MoveDirection.Left:
+                    return new Location(currentLocation.Row, currentLocation.Col - 1);
+                case MoveDirection.Right:
+                    return new Location(currentLocation.Row, currentLocation.Col + 1);
+                case MoveDirection.UpLeft:
+                    return new Location(currentLocation.Row - 1, currentLocation.Col - 1);
+                case MoveDirection.UpRight:
+                    return new Location(currentLocation.Row - 1, currentLocation.Col + 1);
+                case MoveDirection.DownLeft:
+                    return new Location(currentLocation.Row + 1, currentLocation.Col - 1);
+                case MoveDirection.DownRight:
+                    return new Location(currentLocation.Row + 1, currentLocation.Col + 1);
+                default:
+                    throw new ArgumentException("Invalid enumeration supplied", nameof(direction));
+            }
         }
     }
 }
