@@ -61,12 +61,7 @@ namespace WordBrainPwnr.ConsoleTests
                 IEnumerable<string> possibleSolutions = GetPossibleSolutionsForHint(trie, characterMatrix, hint);
                 sw.Stop();
 
-                Console.WriteLine(sw.Elapsed);
-
-                foreach (string possibleSolution in possibleSolutions)
-                {
-                    Console.WriteLine(possibleSolution);
-                }
+                Console.WriteLine($"Elapsed while finding first words and sqeezing: {sw.Elapsed}");
             }
         }
 
@@ -91,6 +86,7 @@ namespace WordBrainPwnr.ConsoleTests
 
             int matrixRows = characterMatrix.GetLength(0);
             int matrixCols = characterMatrix.GetLength(1);
+
             for (int rows = 0; rows < matrixRows; rows++)
             {
                 for (int cols = 0; cols < matrixCols; cols++)
@@ -110,6 +106,7 @@ namespace WordBrainPwnr.ConsoleTests
                             if (currentMove.Depth == hint.HintSize && wordTrie.IsFullWord(currentMove.Value))
                             {
                                 possibleSolutions.Add(currentMove.Value);
+                                SqueezeMatrix(characterMatrix, currentMove.GetTraversedLocations());
                                 continue;
                             }
 
@@ -127,7 +124,7 @@ namespace WordBrainPwnr.ConsoleTests
             return possibleSolutions;
         }
 
-        private static HintLocation GetStartingPoint(char[,] characterMatrix, string hint)
+        public static HintLocation GetStartingPoint(char[,] characterMatrix, string hint)
         {
             if (string.IsNullOrWhiteSpace(hint))
             {
@@ -148,6 +145,69 @@ namespace WordBrainPwnr.ConsoleTests
             }
 
             return new HintLocation();
+        }
+
+        public static char?[,] SqueezeMatrix(char?[,] matrix, IEnumerable<Location> usedLocations)
+        {
+            HashSet<Location> locations = new HashSet<Location>(usedLocations);
+
+            if (locations.Count == 0)
+            {
+                return matrix;
+            }
+
+            int rows = matrix.GetLength(0);
+            int cols = matrix.GetLength(1);
+            List<List<char?>> invertedSqueezedMatrix = new List<List<char?>>();
+
+            for (int col = 0; col < cols; col++)
+            {
+                List<char?> currentSqueezedColumn = SqueezeColumn(matrix, col, locations);
+                invertedSqueezedMatrix.Add(currentSqueezedColumn);
+            }
+
+            char?[,] outputMatrix = new char?[rows, cols];
+
+            for (int col = 0; col < cols; col++)
+            {
+                for (int row = 0; row < rows; row++)
+                {
+                    char? currentValue = invertedSqueezedMatrix[col][row];
+                    outputMatrix[row, col] = currentValue;
+                }
+            }
+
+            return outputMatrix;
+        }
+
+        private static List<char?> SqueezeColumn(char?[,] matrix, int column, IEnumerable<Location> locations)
+        {
+            IEnumerable<Location> orderedLocations = locations
+                .Where(l => l.Col == column);
+
+            HashSet<Location> hashedLocations = new HashSet<Location>(orderedLocations);
+
+            int rows = matrix.GetLength(0);
+
+            List<char?> charList = new List<char?>();
+            List<char?> nullList = new List<char?>();
+            for (int row = 0; row < rows; row++)
+            {
+                Location currentLocation = new Location(row, column);
+                if (hashedLocations.Contains(currentLocation))
+                {
+                    hashedLocations.Remove(currentLocation);
+                    nullList.Add(null);
+                    continue;
+                }
+
+                charList.Add(matrix[row, column]);
+            }
+
+            List<char?> columnList = new List<char?>(nullList);
+            columnList.AddRange(charList);
+
+            return columnList;
         }
 
         public static IEnumerable<Move> GetAvailableMoves(Move currentMove, char?[,] matrix)

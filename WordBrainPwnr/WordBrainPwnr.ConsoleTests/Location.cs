@@ -18,6 +18,11 @@ namespace WordBrainPwnr.ConsoleTests
 
         public int Col { get; }
 
+        public bool Equals(int row, int col)
+        {
+            return Row == row && Col == col;
+        }
+
         public override bool Equals(object obj)
         {
             if (!(obj is Location locationObject))
